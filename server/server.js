@@ -8,8 +8,8 @@ class baseuser {
             name = uniqueNamesGenerator({dictionaries: [colors, animals], separator: '-', length: 2})
         }
         this.name = name,
-        this.locx = 720
-        this.locy = 720
+        this.locx = Math.floor(Math.random() * (720 + 1))
+        this.locy = Math.floor(Math.random() * (720 + 1))
         this.colour = 0
     }
 }
@@ -108,6 +108,7 @@ function mainLoop() {
         setTimeout(mainLoop, tickrate - elapsed)
     } else {
         console.log('Tick took too long! Time: ' + elapsed)
+        mainLoop()
     }
 }
 
@@ -143,9 +144,18 @@ io.on('connection', (socket) => {
         }
     })
 
+    socket.on('request-send-message', (msgreq) => {
+        let user = users.findOne({ id: msgreq.id })
+        if (user != null) {
+            console.log('User ' + user.name + ' sent message ' + msgreq.message)
+            io.emit('sent-message', {name: user.name, message: msgreq.message})
+        }
+    })
+
     socket.on('disconnect', () => {
         users.remove(users.findOne({id: socket.id}))
         console.log('user ' + socket.id + ' disconnected!')
+        userlistchange = true
     })
 })
 

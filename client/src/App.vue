@@ -1,22 +1,25 @@
 <template>
   <div id="stage">
-    <UserBox v-for="user in userlist" :key="user.id" :name="user.name" :posx="user.locx" :posy="user.locy" :colour="colourChart[user.colour].value"/>
+    <UserBox v-for="user in userlist" :key="user.id" :name="user.name" :posx="user.locx" :posy="user.locy" :colour="colourChart[user.colour].value" :isplayer="true"/>
     <div id="namechanger">
       <input type="text" id="nameinput" v-model="nameinputval" placeholder="Enter new name..." maxlength="11"/>
       <button id="namebutton" @click="changeName" :disabled="!(nameinputval.length > 0)">Change</button>
     </div>
+    <ChatBox :messages="messagelist" @send-message="sendMessage" />
   </div>
 </template>
 
 <script>
 import UserBox from './components/UserBox.vue'
+import ChatBox from './components/ChatBox.vue'
 import io from 'socket.io-client'
 import kd from 'keydrown'
 
 export default {
   name: 'App',
   components: {
-    UserBox
+    UserBox,
+    ChatBox
   },
   data() {
     return {
@@ -30,7 +33,11 @@ export default {
       ],
       userlist: [],
       nameinputval: '',
-      socket: null
+      socket: null,
+      messagelist: [
+        { name: "Server", message: "Welcome to the chat!" },
+        { name: "Server", message: "Hello!" }
+      ]
     }
   },
   mounted() {
@@ -40,6 +47,19 @@ export default {
     this.socket.on('user-list', (data) => {
       //console.log(data)
       this.userlist = data
+    })
+
+    this.socket.on('connect', () => {
+      console.log('Connected to server')
+    })
+
+    this.socket.on('sent-message', (msgobj) => {
+      this.messagelist.unshift(msgobj)
+    })
+
+    this.socket.on('disconnect', () => {
+      location.reload()
+      console.log('Disconnected from server')
     })
 
     //up down left right
@@ -77,6 +97,13 @@ export default {
         this.socket.emit('request-change-name', this.nameinputval)
         this.nameinputval = ''
       }
+    },
+    sendMessage(message) {
+      let msgreq = {
+        id: this.socket.id,
+        message: message
+      }
+      this.socket.emit('request-send-message', msgreq)
     }
   }
 }

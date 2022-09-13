@@ -8,12 +8,13 @@
 
 <script>
 export default {
-    name: "UserBox",
+    name: 'UserBox',
     props: {
         name: String,
         posx: Number,
         posy: Number,
-        colour: String
+        colour: String,
+        isplayer: Boolean
     },
     computed: {
         fullStyle() {
@@ -28,6 +29,7 @@ export default {
     height: 20px;
     width: 20px;
     position: absolute;
+    z-index: 2;
 }
 
 #namebadge {
@@ -50,8 +52,8 @@ export default {
     max-width: 100px;
     width: fit-content;
     display: inline-block;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
     padding-top: 1px;
 }
 </style>
