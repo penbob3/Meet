@@ -104,7 +104,7 @@ function mainLoop() {
     let end = Date.now()
     let elapsed = end - start
     if (elapsed < tickrate) {
-        console.log('Tick took ' + elapsed + 'ms, sleeping for ' + (tickrate - elapsed) + 'ms')
+        //console.log('Tick took ' + elapsed + 'ms, sleeping for ' + (tickrate - elapsed) + 'ms')
         setTimeout(mainLoop, tickrate - elapsed)
     } else {
         console.log('Tick took too long! Time: ' + elapsed)
@@ -128,6 +128,18 @@ io.on('connection', (socket) => {
         }
         if (userchanges.findOne({id: socket.id}) == null) {
             userchanges.insert(change)
+        }
+    })
+
+    socket.on('request-change-name', (name) => {
+        console.log('user ' + socket.id + ' requested name change to ' + name)
+        let user = users.findOne({ id: socket.id })
+        if (name.length <= 11) {
+            user.name = name
+            users.update(user)
+            userlistchange = true
+        } else {
+            socket.disconnect()
         }
     })
 

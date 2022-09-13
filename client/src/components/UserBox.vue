@@ -1,6 +1,8 @@
 <template>
     <div id="user" :style="fullStyle">
-        <div id="namebadge">{{ name }}</div>
+        <div id="namebadge">
+            <div id="innername">{{ name }}</div>
+        </div>
     </div>
 </template>
 
@@ -34,12 +36,22 @@ export default {
     position: absolute;
     width: 100px;
     height: 20px;
-    background-color: rgba(0, 0, 0, 0.273);
     margin-top: -25px;
     margin-left: -40px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     text-align: center;
+}
+
+#innername {
+    background-color: rgba(0, 0, 0, 0.273);
+    height: 100%;
+    max-width: 100px;
+    width: fit-content;
+    display: inline-block;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 1px;
 }
 </style>

@@ -1,6 +1,10 @@
 <template>
   <div id="stage">
     <UserBox v-for="user in userlist" :key="user.id" :name="user.name" :posx="user.locx" :posy="user.locy" :colour="colourChart[user.colour].value"/>
+    <div id="namechanger">
+      <input type="text" id="nameinput" v-model="nameinputval" placeholder="Enter new name..." maxlength="11"/>
+      <button id="namebutton" @click="changeName" :disabled="!(nameinputval.length > 0)">Change</button>
+    </div>
   </div>
 </template>
 
@@ -24,23 +28,19 @@ export default {
         { colour: 'yellow', value: '#c4d950' },
         { colour: 'pink', value: '#c74485'}
       ],
-      userlist: []
+      userlist: [],
+      nameinputval: '',
+      socket: null
     }
   },
   mounted() {
-    var url = "http://localhost:3001"
-    //var url = "/"
-    const socket = io(url, { pingInterval: 1000, pingTimeout: 5000 })
-    socket.on('user-list', (data) => {
+    //var url = "http://localhost:3001"
+    var url = "/"
+    this.socket = io(url, { pingInterval: 1000, pingTimeout: 5000 })
+    this.socket.on('user-list', (data) => {
       //console.log(data)
       this.userlist = data
     })
-
-    /*
-    kd.run(function () {
-      kd.tick()
-    })
-    */
 
     //up down left right
     let keyvalues = [0, 0, 0, 0]
@@ -55,7 +55,7 @@ export default {
         let xmove = (keyvalues[2] * -1) + keyvalues[3]
         //console.log(xmove + " " + ymove)
         if (xmove != 0 || ymove != 0) {
-          socket.emit('request-move', { x: xmove, y: ymove })
+          this.socket.emit('request-move', { x: xmove, y: ymove })
         }
       }
     }, 10)
@@ -70,26 +70,14 @@ export default {
     kd.DOWN.up(() => { keyvalues[1] = 0; keyvalchanged = true })
     kd.LEFT.up(() => { keyvalues[2] = 0; keyvalchanged = true })
     kd.RIGHT.up(() => { keyvalues[3] = 0; keyvalchanged = true })
-
-    
-
-    /*
-    kd.LEFT.down(() => {
-      socket.emit('request-move', { x: -1, y: 0 })
-    })
-
-    kd.RIGHT.down(() => {
-      socket.emit('request-move', { x: 1, y: 0 })
-    })
-
-    kd.UP.down(() => {
-      socket.emit('request-move', { x: 0, y: -1 })
-    })
-
-    kd.DOWN.down(() => {
-      socket.emit('request-move', { x: 0, y: 1 })
-    })
-    */
+  },
+  methods: {
+    changeName() {
+      if (this.nameinputval != '') {
+        this.socket.emit('request-change-name', this.nameinputval)
+        this.nameinputval = ''
+      }
+    }
   }
 }
 </script>
@@ -108,5 +96,18 @@ export default {
   height: 720px;
   width: 720px;
   background-color: rgba(87, 87, 87);
+}
+
+#namechanger {
+  height: 30px;
+  width: 200px;
+  background-color: rgba(250, 235, 215, 0.284);
+  position: absolute;
+  margin-top: 720px;
+  padding-top: 6px;
+}
+
+#nameinput {
+  width: 60%;
 }
 </style>
